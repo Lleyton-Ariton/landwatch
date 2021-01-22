@@ -100,10 +100,3 @@ class UNet(nn.Module):
         x = self.output(x)
 
         return x
-
-
-if __name__ == '__main__':
-
-    unet = UNet(3, 3)
-
-    print(unet(torch.ones(1, 3, 224, 224)).shape)
