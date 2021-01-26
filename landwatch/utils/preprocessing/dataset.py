@@ -88,7 +88,12 @@ class SegmentationDataset(Dataset):
         for transformation in self.transformations:
             self.x_data = transformation(self.x_data)
 
+        self.x_data, self.y_data = self.x_data.squeeze(), self.y_data.squeeze()
+        self.x_data, self.y_data = self.x_data.permute(0, 3, 1, 2), self.y_data.permute(0, 3, 1, 2)
         self.x_data, self.y_data = self.x_data.float(), self.y_data.float()
+
+        self.x_data /= 255
+        self.y_data /= 255
 
         if self.x_data.shape[0] != self.y_data.shape[0]:
             raise RuntimeError(f'Size mismatch! \'x_data has\' length {self.x_data.shape[0]} '
@@ -99,3 +104,13 @@ class SegmentationDataset(Dataset):
 
     def __getitem__(self, item: int) -> Tuple[torch.Tensor, torch.Tensor]:
         return self.x_data[item], self.y_data[item]
+
+
+def create_dataset(file_path: str, create_handler: bool=False, **dataset_params) -> SegmentationDataset:
+    if create_handler:
+        with RayHandler():
+            dataset = SegmentationDataset(file_path, **dataset_params)
+
+        return dataset
+
+    return SegmentationDataset(file_path, **dataset_params)

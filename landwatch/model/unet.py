@@ -71,7 +71,8 @@ class UNet(nn.Module):
 
         self.output = nn.Sequential(
             nn.Conv2d(64, self.out_channels, kernel_size=1),
-            nn.Upsample(scale_factor=2)
+            nn.Upsample(scale_factor=2),
+            nn.Sigmoid()
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -100,10 +101,3 @@ class UNet(nn.Module):
         x = self.output(x)
 
         return x
-
-
-if __name__ == '__main__':
-
-    unet = UNet(3, 3)
-
-    print(unet(torch.ones(1, 3, 224, 224)).shape)
