@@ -2,25 +2,12 @@ import ray
 import torch
 
 from landwatch.model import UNet, DiceLoss
-from landwatch.utils.data.dataset import SegmentationDataset
+from landwatch.utils.preprocessing.dataset import SegmentationDataset
 
 from torch.utils.data import DataLoader
 from ray.util.sgd.torch import TrainingOperator
 
 from typing import *
-
-
-class RayHandler:
-
-    def __enter__(self, **kwargs):
-        if ray.is_initialized():
-            raise RuntimeError('Ray is already initialized')
-
-        ray.init(**kwargs)
-
-    def __exit__(self):
-        if ray.is_initialized():
-            ray.shutdown()
 
 
 class SegmentationOperator(TrainingOperator):
