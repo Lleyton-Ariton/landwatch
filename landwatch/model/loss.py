@@ -4,18 +4,20 @@ import torch.nn as nn
 
 class DiceLoss(nn.Module):
 
-    def __init__(self, smooth: float):
+    def __init__(self, smooth: float=1.0):
         super().__init__()
 
         self.smooth = smooth
 
-    def forward(self, pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-        pred = pred.contiguous()
-        target = target.contiguous()
+    def forward(self, logits, targets):
+        num = targets.size(0)
 
-        intersection = (pred * target).sum(dim=2).sum(dim=2)
+        probs = torch.sigmoid(logits)
 
-        numerator = (2.0 * intersection + self.smooth)
-        denominator = (pred.sum(dim=2).sum(dim=2) + target.sum(dim=2).sum(dim=2) + self.smooth)
+        m1, m2 = probs.view(num, -1), targets.view(num, -1)
 
-        return (1 - (numerator/denominator)).mean()
+        intersection = (m1 * m2)
+
+        score = 2.0 * (intersection.sum(1) + self.smooth) / (m1.sum(1) + m2.sum(1) + self.smooth)
+        score = 1 - score.sum() / num
+        return score
