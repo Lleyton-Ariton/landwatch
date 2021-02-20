@@ -8,7 +8,9 @@ from torch.utils.data import Dataset
 
 import numpy as np
 import multiprocessing as mp
+
 from landwatch.utils.multicore import RayHandler
+from landwatch.utils.preprocessing.transformations import *
 
 from typing import *
 
@@ -56,6 +58,8 @@ class SegmentationDataset(Dataset):
     def __load_data(self, file_path: str, resize: Tuple[int, int] = (224, 224),
                     num_cpus: int = mp.cpu_count(), n_images: int = None) -> List:
 
+        take_images = len(os.listdir(file_path)) if n_images is None else n_images
+
         it = ray.util.iter.from_items(
             self.__filter_ignore_files(os.listdir(file_path)),
             num_shards=num_cpus
@@ -63,7 +67,17 @@ class SegmentationDataset(Dataset):
 
         it = it.gather_async()
 
-        return torch.tensor(it.take(len(os.listdir(file_path)) if n_images is None else n_images)).split(1, dim=1)
+        transformed = it.take(take_images)
+
+        for transformation in self.transformations:
+            transformed.extend(
+                ray.util.iter.from_items(
+                    transformed
+                ).for_each(lambda inputs: transformation(inputs)).gather_sync().take(take_images)
+            )
+
+        # return torch.tensor(it.take(take_images)).split(1, dim=1)
+        return torch.tensor(transformed).split(1, dim=1)
 
     def __init__(self, root_dir: str, resize: Tuple[int, int]=(224, 224),
                  transformations: List[Callable]=None, num_cpus: int=mp.cpu_count(), n_images: int=None):
@@ -84,9 +98,6 @@ class SegmentationDataset(Dataset):
                                                     resize=self.resize,
                                                     num_cpus=self.num_cpus,
                                                     n_images=self.n_images)
-
-        for transformation in self.transformations:
-            self.x_data = transformation(self.x_data)
 
         self.x_data, self.y_data = self.x_data.squeeze(), self.y_data.squeeze()
         self.x_data, self.y_data = self.x_data.permute(0, 3, 1, 2), self.y_data.permute(0, 3, 1, 2)
