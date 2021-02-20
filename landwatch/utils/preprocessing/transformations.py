@@ -10,7 +10,7 @@ class FlipImageVR:
                  inputs: Union[List[np.ndarray],
                                Tuple[np.ndarray, np.ndarray]]) -> List[np.ndarray]:
                      
-                     return [cv2.flip(inputs[0], 0), cv2.flip(inputs[1], 0)]
+        return [cv2.flip(inputs[0], 0), cv2.flip(inputs[1], 0)]
 
 
 class FlipImageHZ:
@@ -19,7 +19,7 @@ class FlipImageHZ:
                  inputs: Union[List[np.ndarray],
                                Tuple[np.ndarray, np.ndarray]]) -> List[np.ndarray]:
                      
-                     return [cv2.flip(inputs[0], 1), cv2.flip(inputs[1], 1)]
+        return [cv2.flip(inputs[0], 1), cv2.flip(inputs[1], 1)]
 
 
 class DoubleFlip:
@@ -28,4 +28,4 @@ class DoubleFlip:
                  inputs: Union[List[np.ndarray],
                                Tuple[np.ndarray, np.ndarray]]) -> List[np.ndarray]:
                      
-                     return [cv2.flip(inputs[0], -1), cv2.flip(inputs[1], -1)]
+        return [cv2.flip(inputs[0], -1), cv2.flip(inputs[1], -1)]
