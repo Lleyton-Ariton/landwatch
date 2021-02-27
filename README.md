@@ -1,2 +1,3 @@
-# landwatch
-Using UNet to monitor and segment land usage from satellite imagery
+# LandWatch
+Using UNet to monitor and segment land usage from satellite imagery.
+
