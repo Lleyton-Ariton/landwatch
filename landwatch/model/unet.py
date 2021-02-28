@@ -53,7 +53,8 @@ class UNet(nn.Module):
 
         left_layers = [pow(2, i) for i in range(6, 11)]
 
-        self.left, self.right = [DownScalingBlock(self.in_channels, 64)], []
+        self.left = nn.ModuleList([DownScalingBlock(self.in_channels, 64)])
+        self.right = nn.ModuleList([])
 
         self.left.extend([
             *[DownScalingBlock(left_layers[i],
