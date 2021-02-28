@@ -95,7 +95,7 @@ class DefaultTorchTrainer:
 
             self.__optimizer.zero_grad()
 
-            outputs = self.__model
+            outputs = self.__model(inputs)
 
             loss = self.__criterion(outputs, mask)
             loss.backward()
