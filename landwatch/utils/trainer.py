@@ -73,10 +73,6 @@ class DefaultTorchTrainer:
 
         self.__model = UNet(config['in_channels'], config['out_channels'])
 
-        self.__model.train()
-        if self.__use_gpu:
-            self.__model.cuda()
-
         self.__optimizer = torch.optim.Adam(
             params=self.__model.parameters(),
             lr=config.get('lr', 1e4)
@@ -85,6 +81,10 @@ class DefaultTorchTrainer:
         self.__criterion = config.get('criterion', DiceLoss(smooth=1.0))
 
     def train(self):
+        self.__model.train()
+        if self.__use_gpu:
+            self.__model = self.__model.cuda()
+        
         for i, data in enumerate(self.__train_data):
             inputs, mask = data
 
